@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django # pod의 이름
+  namespace: django-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: django-application
+  template:
+    metadata:
+      labels:
+        app: django-application
+    spec:
+      containers:
+        - name: django-container
+          image: django_app:1.0.1
+          imagePullPolicy: Never # local 이미지 사용
+          envFrom:
+              - configMapRef:
+                  name: config
+          ports:
+            - containerPort: 8000 # 내부 포트
+          command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+          readinessProbe: # Readiness Probe 설정
+            httpGet:
+              path: /api/health/  # Django의 헬스체크 엔드포인트
+              port: 8000      # Gunicorn이 사용하는 포트
+            initialDelaySeconds: 5  # Gunicorn 준비 시간
+            periodSeconds: 3       # 헬스체크 주기
+          livenessProbe: # 선택적으로 liveness probe도 추가
+            httpGet:
+              path: /api/health/
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          volumeMounts:
+            - mountPath: /app/static # 컨테이너 내부 경로
+              name: shared-volume
+      terminationGracePeriodSeconds: 120
+      volumes:
+        - name: shared-volume
+          persistentVolumeClaim:
+            claimName: shared-pvc
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: shared-pv
+  namespace: django-app
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany # 다수의 Pod에서 읽기/쓰기가 가능해야 함
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /app/static # 노드의 공유 경로
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-pvc
+  namespace: django-app
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+
+#eval $(minikube docker-env)
+#docker build -f Dockerfile.django -t django_app:latest .
+
+# PersistentVolume의 accessModes:
+#   ReadWriteOnce: 하나의 노드에서만 읽기/쓰기 가능.
+#   ReadWriteMany: 여러 노드에서 동시에 읽기/쓰기 가능.
+#   ReadOnlyMany: 여러 노드에서 읽기만 가능.
+
+## postgresql-secret
+# kubectl create secret generic postgresql-secret --from-env-file=.env --namespace=django-app
+
+## 위 상세표를 기반항 pod 생성
+# kubectl apply -f django-deployment.yml

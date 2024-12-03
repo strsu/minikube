@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx # pod의 이름
+  namespace: django-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-application
+  template:
+    metadata:
+      labels:
+        app: nginx-application
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx_app:1.0.0
+          imagePullPolicy: Never # local 이미지 사용
+          ports:
+            - containerPort: 80 # 내부 포트
+          volumeMounts:
+            - mountPath: /app/static # 컨테이너 내부 경로
+              name: shared-volume
+      volumes:
+        - name: shared-volume
+          persistentVolumeClaim:
+            claimName: shared-pvc
+
+## 위 상세표를 기반항 pod 생성
+# kubectl apply -f django-deployment.yml

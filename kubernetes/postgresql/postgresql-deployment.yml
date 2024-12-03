@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresql # pod의 이름
+  namespace: django-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgresql
+  template:
+    metadata:
+      labels:
+        app: postgresql
+    spec:
+      containers:
+        - name: postgresql
+          image: postgres:13
+          imagePullPolicy: IfNotPresent
+          envFrom:
+              - configMapRef:
+                  name: config
+          ports:
+            - containerPort: 5432 # 내부 포트
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgresql-pv-volume
+      volumes:
+        - name: postgresql-pv-volume
+          persistentVolumeClaim:
+            claimName: postgresql-pv-claim
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql-pv-claim
+  namespace: django-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+## postgresql-secret
+# kubectl create secret generic postgresql-secret --from-env-file=.env --namespace=django-app
+
+## 위 상세표를 기반항 pod 생성
+# kubectl apply -f postgresql.yml
+
+## 위에서 생성한 pod를 외부포트 8080으로 연결해줘야 통신가능
+# kubectl port-forward boaz-pod 8080:80

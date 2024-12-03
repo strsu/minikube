@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: lr-1
+  namespace: django-app
+spec:
+  limits:
+  - type: Container
+    min:
+      memory: 0.2Gi
+    max:
+      memory: 2Gi
+    maxLimitRequestRatio:
+      memory: 3
+    defaultRequest:
+      memory: 0.2Gi
+    default:
+      memory: 0.5Gi
+
+# 만약 메모리가 부족하면 작성한 replicas 개수에 맞춰서 pod를 생성하지 않는다

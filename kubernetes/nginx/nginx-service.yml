@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: django-app
+  labels:
+    app: nginx-svc
+spec:
+  type: ClusterIP # default
+  ports:
+    - port: 80 # 클러스터 내부에서 Service가 사용하는 포트.
+  selector:
+    app: nginx-application

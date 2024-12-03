@@ -1,0 +1,31 @@
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: collectstatic-job
+  namespace: django-app
+spec:
+  backoffLimit: 4  # 작업 실패 시 재시도 횟수
+  ttlSecondsAfterFinished: 3600 # 작업 완료 후 1시간 후 삭제
+  activeDeadlineSeconds: 60 # 60초안에 작업이 완료되지 않으면 job 종료
+
+  template:
+    spec:
+      containers:
+        - name: collectstatic
+          image: django_app:1.0.1
+          imagePullPolicy: Never # local 이미지 사용
+          envFrom:
+            - configMapRef:
+                name: config
+          command: ["python", "manage.py", "migrate"]
+          ports:
+            - containerPort: 8000 # 내부 포트
+          volumeMounts:
+            - mountPath: /app/static # collectstatic이 파일을 저장할 경로
+              name: shared-volume
+      volumes:
+        - name: shared-volume
+          persistentVolumeClaim:
+            claimName: shared-pvc  # PVC 이름
+      restartPolicy: OnFailure  # Job은 한 번 실행 후 종료
