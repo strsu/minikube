@@ -8,6 +8,8 @@ spec:
   selector:
     matchLabels:
       app: django-application
+  strategy: # 배포전략
+    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -25,16 +27,20 @@ spec:
           command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
           readinessProbe: # Readiness Probe 설정
             httpGet:
-              path: /api/health/  # Django의 헬스체크 엔드포인트
-              port: 8000      # Gunicorn이 사용하는 포트
+              path: /api/health/    # Django의 헬스체크 엔드포인트
+              port: 8000            # Gunicorn이 사용하는 포트
             initialDelaySeconds: 5  # Gunicorn 준비 시간
-            periodSeconds: 3       # 헬스체크 주기
+            timeoutSeconds: 60      # 60초 동안
+            periodSeconds: 3        # 2초 간격으로(헬스체크 주기)
+            successThreshold: 1     # 2회 성공하면 트래픽 연결
           livenessProbe: # 선택적으로 liveness probe도 추가
             httpGet:
               path: /api/health/
               port: 8000
-            initialDelaySeconds: 10
-            periodSeconds: 5
+            initialDelaySeconds: 5  # Gunicorn 준비 시간
+            timeoutSeconds: 60      # 60초 동안
+            periodSeconds: 3        # 2초 간격으로(헬스체크 주기)
+            successThreshold: 1     # 2회 성공하면 트래픽 연결
           volumeMounts:
             - mountPath: /app/static # 컨테이너 내부 경로
               name: shared-volume
