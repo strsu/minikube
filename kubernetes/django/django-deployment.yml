@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: django-container
-          image: django_app:1.0.1
+          image: django_app:1.0.0
           imagePullPolicy: Never # local 이미지 사용
           envFrom:
               - configMapRef:
