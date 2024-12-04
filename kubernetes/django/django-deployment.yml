@@ -49,32 +49,6 @@ spec:
         - name: shared-volume
           persistentVolumeClaim:
             claimName: shared-pvc
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: shared-pv
-  namespace: django-app
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteMany # 다수의 Pod에서 읽기/쓰기가 가능해야 함
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /app/static # 노드의 공유 경로
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: shared-pvc
-  namespace: django-app
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 1Gi
 
 #eval $(minikube docker-env)
 #docker build -f Dockerfile.django -t django_app:latest .

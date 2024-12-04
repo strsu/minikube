@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: shared-pv
+  namespace: django-app
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany # 다수의 Pod에서 읽기/쓰기가 가능해야 함
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /app/static # 노드의 공유 경로
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-pvc
+  namespace: django-app
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+
+#eval $(minikube docker-env)
+#docker build -f Dockerfile.django -t django_app:latest .
+
+# PersistentVolume의 accessModes:
+#   ReadWriteOnce: 하나의 노드에서만 읽기/쓰기 가능.
+#   ReadWriteMany: 여러 노드에서 동시에 읽기/쓰기 가능.
+#   ReadOnlyMany: 여러 노드에서 읽기만 가능.
+
+## postgresql-secret
+# kubectl create secret generic postgresql-secret --from-env-file=.env --namespace=django-app
+
+## 위 상세표를 기반항 pod 생성
+# kubectl apply -f django-deployment.yml
