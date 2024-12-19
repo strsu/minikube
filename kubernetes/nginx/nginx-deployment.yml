@@ -21,7 +21,7 @@ spec:
             - containerPort: 80 # 내부 포트
           volumeMounts:
             - mountPath: /etc/nginx/nginx.conf
-              name: nginx-config
+              name: nginx-conf
               readOnly: true
               subPath: nginx.conf
             - mountPath: /app/static # 컨테이너 내부 경로
