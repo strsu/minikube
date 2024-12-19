@@ -15,17 +15,27 @@ spec:
     spec:
       containers:
         - name: nginx-container
-          image: nginx_app:1.0.0
-          imagePullPolicy: Never # local 이미지 사용
+          image: nginx:1.24.0-bullseye
+          imagePullPolicy: IfNotPresent # Never - local 이미지 사용
           ports:
             - containerPort: 80 # 내부 포트
           volumeMounts:
+            - mountPath: /etc/nginx/nginx.conf
+              name: nginx-config
+              readOnly: true
+              subPath: nginx.conf
             - mountPath: /app/static # 컨테이너 내부 경로
               name: shared-volume
       volumes:
         - name: shared-volume
           persistentVolumeClaim:
             claimName: shared-pvc
+        - name: nginx-conf
+          configMap:
+            name: nginx-conf
+            items:
+              - key: nginx.conf
+                path: nginx.conf
 
 ## 위 상세표를 기반항 pod 생성
 # kubectl apply -f django-deployment.yml
