@@ -7,7 +7,7 @@ spec:
   capacity:
     storage: 1Gi
   accessModes:
-    - ReadWriteMany # 다수의 Pod에서 읽기/쓰기가 가능해야 함
+    - ReadWriteOnce # 다수의 Pod에서 읽기/쓰기가 가능해야 함
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: /app/static # 노드의 공유 경로
