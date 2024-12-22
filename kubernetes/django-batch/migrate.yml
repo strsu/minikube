@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: collectstatic-job
+  name: migrate
   namespace: django-app
 spec:
   backoffLimit: 4  # 작업 실패 시 재시도 횟수
@@ -12,7 +12,7 @@ spec:
   template:
     spec:
       containers:
-        - name: collectstatic
+        - name: migrate
           image: strsu96/django:1.0.0
           imagePullPolicy: IfNotPresent
           envFrom:
