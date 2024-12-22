@@ -12,8 +12,8 @@ spec:
     spec:
       containers:
         - name: collectstatic
-          image: django_app:1.0.0
-          imagePullPolicy: Never # local 이미지 사용
+          image: strsu96/django:1.0.0
+          imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
                 name: config
