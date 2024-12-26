@@ -23,6 +23,20 @@ spec:
                 name: nginx-service  # 연결할 Service 이름
                 port:
                   number: 80         # Service의 port 번호
+          - path: /static
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-service  # 연결할 Service 이름
+                port:
+                  number: 80         # Service의 port 번호
+          - path: /media
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-service  # 연결할 Service 이름
+                port:
+                  number: 80         # Service의 port 번호
 
 # tunnel을 실행해야 접속이 된다!!
 # minikube tunnel
