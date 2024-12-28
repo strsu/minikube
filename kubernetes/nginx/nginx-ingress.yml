@@ -3,9 +3,8 @@ kind: Ingress
 metadata:
   name: nginx-ingress
   namespace: django-app
-  annotations:
-    kubernetes.io/ingress.class: nginx
 spec:
+  ingressClassName: nginx
   rules:
     - http:
         paths:
