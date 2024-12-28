@@ -10,11 +10,8 @@ spec:
   ingressClassName: nginx
   tls:
   - secretName: headlamp
-    hosts:
-    - localhost
   rules:
-  - host: localhost
-    http:
+  - http:
       paths:
       - path: /
         pathType: Prefix
